@@ -1,5 +1,5 @@
 prefix = "  "
-suffix = ".\n"
+suffix = "\n"
 majorPrefixKey = "\n"
 
 dictionaryRepresentationSpacingDefinitions = {'letter': 4, 'word': 3, 'ctx-word': 2, 'ctx-word detail': 1}
