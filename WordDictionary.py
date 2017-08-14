@@ -28,9 +28,12 @@ class WordDictionary:
             raise Exception(word + " is not in the dictionary")
         
     def getDictionaryWords(self):
-        words = []
-        for k,v in self.words.items():
-            words.append(k)
-        return words
-            
+        return self.words.keys
+    
+    def saveDictionary(self, filename, options):
+        f = open(filename, 'w')
+        for k,v in sorted(self.words).items():
+            f.write(word.capitalize() + "\n")
+            v.storeWordInFile(f,options)
+        f.close()
 
