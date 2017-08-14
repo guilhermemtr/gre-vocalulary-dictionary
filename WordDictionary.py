@@ -11,7 +11,23 @@ class WordDictionary:
         for line in f:
             self.addWord(line.lower().replace("\n",""))
         f.close()
-        
+
+    def saveDictionary(self, filename, options):
+        f = open(filename, 'w')
+        currentChar = 'A'
+        wordCount = 0
+        prefix = getPrefix()
+        for k in sorted(self.words):
+            if k.capitalize()[0] != currentChar or wordCount == 0:
+                currentChar = k.capitalize()[0]
+                spacing = ""
+                if wordCount > 0:
+                    spacing = getMajorPrefix(dictionaryRepresentationSpacingDefinitions['letter'])
+                f.write(getLineString(currentChar, spacing))
+            f.write(self.words[k].wordDescription(prefix, options))
+            wordCount = wordCount + 1
+        f.close()
+
     def addWord(self, word):
         self.words[word] = Word(word)
 
@@ -30,10 +46,3 @@ class WordDictionary:
     def getDictionaryWords(self):
         return self.words.keys
     
-    def saveDictionary(self, filename, options):
-        f = open(filename, 'w')
-        for k,v in sorted(self.words).items():
-            f.write(word.capitalize() + "\n")
-            v.storeWordInFile(f,options)
-        f.close()
-

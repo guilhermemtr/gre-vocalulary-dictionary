@@ -29,12 +29,6 @@ def showArguments():
     print('Number of arguments:', len(sys.argv), 'arguments.')
     print('Argument List:', str(sys.argv))
 
-def writeLinesToFile(fn, words):
-    f = open(fn, 'w')
-    for word in words:
-        words.append(line.lower().replace("\n",""))
-    return words
-
 def main():
     # my code here
     showArguments()
@@ -42,7 +36,7 @@ def main():
     wordDictionary = WordDictionary(["input"])
     words = wordDictionary.getDictionaryWords()
     print (words)
-
+    wordDictionary.saveDictionary("output", options)
 
 if __name__ == "__main__":
     main()

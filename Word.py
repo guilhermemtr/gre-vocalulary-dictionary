@@ -4,42 +4,40 @@ from Config import *
 import textwrap
 from nltk.corpus import wordnet as wn
 
-def getLineString(prefix, line):
-    return prefix + line + "\n"
+def getLineString(line, prefix = "", suffix = ""):
+    return prefix + line.capitalize() + suffix + getSuffix()
 
 class ContextWord:
     def __init__(self, word, meaning):
         self.word = word
         self.meaning = meaning
 
-    def definition(self):
-        return self.meaning.definition()
-
-    def storeContextWordOnFile(self, f, prefix, options):
-        ctxPrefix = prefix + "\t"
-        f.write(self.getWordDescription(ctxPrefix, options))
-
     def getWordDescription(self, prefix, options):
-        description = getLineString(prefix, self.word)
+        description = getLineString(self.word, prefix)
         descPrefix = prefix + getPrefix()
-        if options['definition']:
-            description += getLineString(descPrefix, self.meaning.definition())
-        
-            
+        if options.getOptions()['definition']:
+            description += getLineString(self.meaning.definition(), descPrefix)
+        return description
 
 class Word:
     def __init__(self, word):
-        self.word = word
+        self.word = word.capitalize()
         self.meanings = wn.synsets(self.word)
         self.words = []
         for meaning in self.meanings:
             self.words.append(ContextWord(self.word,meaning))
-
-    def storeWordInFile(self, f, prefix, options):
-        for word in self.words:
-            word.storeContextWordOnFile(f, options)
         
-    def getWordData(self, options):
-        for word in self.words:
-            print(word.definition() + "\n")
-
+    def getContextWords(self):
+        return self.words.copy()
+    
+    def wordDescription(self, prefix, options):
+        description = getLineString(self.word, prefix)
+        pref = prefix + getPrefix()
+        ctxWordCount = 1
+        for ctxWord in sorted(self.words):
+            if ctxWordCount > 1:
+                description += getMajorPrefix(dictionaryRepresentationSpacingDefinitions['ctxWord'])
+            description += getLineString("Sense %d" % ctxWordCount, pref)
+            description += ctxWord.getWordDescription(pref, options)
+            ctxWordCount = ctxWordCount + 1
+        return description
