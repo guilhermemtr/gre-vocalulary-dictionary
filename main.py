@@ -30,12 +30,8 @@ def showArguments():
     print('Argument List:', str(sys.argv))
 
 def main():
-    # my code here
-    showArguments()
     options = Options()
     wordDictionary = WordDictionary(["input"])
-    words = wordDictionary.getDictionaryWords()
-    print (words)
     wordDictionary.saveDictionary("output", options)
 
 if __name__ == "__main__":
