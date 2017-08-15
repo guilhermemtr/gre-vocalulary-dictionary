@@ -1,5 +1,6 @@
 from Word import *
 
+
 class WordDictionary:
     def __init__(self, filenames):
         self.longestWord = "" #Only has to be at least the length of the longest word
@@ -11,9 +12,13 @@ class WordDictionary:
     def loadWordsFromFile(self, filename):
         f = open(filename, 'r')
         for line in f:
-            wordData = list(map(str.strip,line.lower().strip().replace("\n","").capitalize().split("||")))
-            if len(wordData) > 1:
-                self.addWord(wordData[0],int(wordData[1]))
+            wordData = list(map(str.strip,line.lower().strip().replace("\n","").capitalize().split(fieldSeparator)))
+            wlen = len(wordData)
+            if   wlen == 3:
+                tags = [s for s in list(map(str.strip, wordData[2].split(tagSeparator))) if s != ""]
+                self.addWord(wordData[0], int(wordData[1]), tags)
+            elif wlen == 2:
+                self.addWord(wordData[0], int(wordData[1]))
             else:
                 self.addWord(wordData[0])
         f.close()
@@ -28,7 +33,7 @@ class WordDictionary:
         for k in sorted(self.words):
             if self.words[k].getLevel() < options.getOption('level'):
                 continue
-            if k.capitalize()[0] != currentChar:
+            if k.capitalize()[0] != currentChar or wordCount == 0:
                 currentChar = k.capitalize()[0]
                 if wordCount > 0:
                     spacing = getMajorPrefix('letter')
@@ -51,19 +56,24 @@ class WordDictionary:
             word = self.words[k]
             wordString = word.getWord().replace("%20", " ")
             wordPadding = len(self.longestWord) - len(wordString)
-            f.write(getLineString(word.getWord().replace("%20", " "), "", ((wordPadding + 4) * " ") +  "||" + (" " * 4) + str(word.getLevel())))
+            
+            lvl = str(word.getLevel())
+            lvlPadding = len(self.words) - len(lvl)
+
+            tags = word.getTags()
+            
+            wordLine  = word.getWord() + ((wordPadding + 4) * " ")
+            wordLine += fieldSeparator + (" " * 4) + lvl + (" " * lvlPadding) + (" " * 4)
+            wordLine += fieldSeparator + (" " * 4) + tagSeparator.join(tags) + (" " * 4)
+            f.write(getLineString(wordLine))
         f.close()
 
     def updateLongestWord(self, word):
         if len(word) > len(self.longestWord):
             self.longestWord = word
-    
-    def addWord(self, word):
-        self.words[word] = Word(word)
-        self.updateLongestWord(word)
-        
-    def addWord(self, word, level):
-        self.words[word] = Word(word, level)
+            
+    def addWord(self, word, level = 0, tags = []):
+        self.words[word] = Word(word, level, tags)
         self.updateLongestWord(word)
 
     def deleteWord(self, word):

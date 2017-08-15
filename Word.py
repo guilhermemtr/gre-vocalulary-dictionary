@@ -6,12 +6,12 @@ from nltk.corpus import wordnet as wn
 from PyDictionary import PyDictionary
 import dictcom
 import itertools
+import math
 
 dictionary=PyDictionary() 
 
-
 def getLineString(line, prefix = "", suffix = "", extraSuffix = getSuffix()):
-    return prefix + line.capitalize() + suffix + extraSuffix
+    return prefix + line.capitalize().replace("%20", " ").replace("_", " ") + suffix + extraSuffix
 
 def adj():
     return "adjective"
@@ -36,14 +36,17 @@ wordType = {
             'v' : verb,
 }
 
+fieldSeparator = "||"
+tagSeparator = ";"
 defaultListSeparator = ":"
 defaultSeparator = "."
 
 wordPropertyNames = {
-    'definition': "Definition",
-    'synonyms'  : "Synonyms",
-    'antonyms'  : "Antonyms",
-    'examples'  : "Examples",
+    'definition' : "Definition",
+    'synonyms'   : "Synonyms",
+    'antonyms'   : "Antonyms",
+    'examples'   : "Examples",
+    'tags'       : "Tags",
 }
 
 def standardizedPropertyDescription(prefix, propertyName, valueList = [], suffixSeparator = defaultSeparator, suffix = getSuffix()):
@@ -162,19 +165,19 @@ class ThesaurusWord:
 
         return description
 
-    
+
 class Word:
-    def __init__(self, word, level = 0):
+    def __init__(self, word, level = 0, tags = [""]):
+        self.tags = tags
         self.words = []
-        self.word = word.capitalize().replace(" ", "%20")
-        self.type = ""
+        self.word = word.capitalize().replace(" ", "_")
+        meanings = wn.synsets(self.word)
         self.level = level
-        if word.capitalize() != self.word:
-            self.type = "Thesaurus"
+        if len(meanings) == 0:
+            print ("Not found in NLTK: " + self.word)
+            self.word = self.word.replace("_", "%20")
             self.words.append(ThesaurusWord(self.word))
         else:
-            self.type = "Nltk"
-            meanings = wn.synsets(self.word)
             for meaning in meanings:
                 self.words.append(ContextWord(meaning, self.word))
 
@@ -183,13 +186,18 @@ class Word:
 
     def getLevel(self):
         return self.level
+
+    def getTags(self):
+        return self.tags
     
     def wordDescription(self, prefix, options):
         description = ""
         if options.getOption('word'):
-            description += getLineString(self.word.replace("%20", " "), prefix)
+            description += getLineString(self.word, prefix)
             description += getMajorPrefix('word detail')
 
+        if options.getOption('tags'):
+            description += standardizedPropertyDescription(prefix, wordPropertyNames['tags'], self.tags)
         if options.getOption('difficulty'):
             description += getLineString("Difficulty: ", prefix + getPrefix('word detail'), str(self.level))
         ctxWordCount = 1
@@ -201,7 +209,7 @@ class Word:
                 description += getMajorPrefix('word detail')
 
             if options.getOption('explicit-senses'):
-                description += getLineString("Sense %d, as in %s (%s)" % (ctxWordCount,ctxWord.word().replace("%20", " "), ctxWord.pos()), prefix + getPrefix('ctx-word'), ":")
+                description += getLineString("Sense %d, as in %s (%s)" % (ctxWordCount,ctxWord.word(), ctxWord.pos()), prefix + getPrefix('ctx-word'), ":")
             
             description += ctxWord.getWordDescription(prefix + getPrefix('ctx-word'), options)
             ctxWordCount = ctxWordCount + 1

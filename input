@@ -86,7 +86,7 @@ Cleansing          ||    0
 Clever             ||    0
 Cliche             ||    0
 Coalesce           ||    0
-Cold-hearted       ||    0
+Heartless          ||    0
 Collusive          ||    0
 Commendable        ||    0
 Commonness         ||    0
@@ -174,7 +174,7 @@ Erupt              ||    0
 Especial           ||    0
 Estimable          ||    0
 Estranged          ||    0
-Euhoric            ||    0
+Euphoric           ||    0
 Eulogy             ||    0
 Euphonic           ||    0
 Euphoria           ||    0
@@ -188,7 +188,7 @@ Exemplify          ||    0
 Exorbitant         ||    0
 Extrapolate        ||    0
 Fatigued           ||    0
-Fault-finder       ||    0
+Faultfinder        ||    0
 Favorable          ||    0
 Fickle             ||    0
 Fine               ||    0
@@ -205,7 +205,7 @@ Fretful            ||    0
 Frugal             ||    0
 Fuse               ||    0
 Fussy              ||    0
-Fuzy               ||    0
+Fuzzy              ||    0
 Gossip             ||    0
 Graft              ||    0
 Grasp              ||    0
@@ -250,7 +250,7 @@ Insufferable       ||    0
 Interpolations     ||    0
 Intimation         ||    0
 Irk                ||    0
-Ittermitent        ||    0
+intermittent       ||    0
 Jackhammers        ||    0
 Jargon             ||    0
 Jocular            ||    0
@@ -324,7 +324,7 @@ Placate            ||    0
 Ploy               ||    0
 Pragmatic          ||    0
 Praise             ||    0
-Preasant           ||    0
+Pleasant           ||    0
 Precedent          ||    0
 Preempt            ||    0
 Preemptive         ||    0
@@ -376,11 +376,10 @@ Scrupulous         ||    0
 Seize              ||    0
 Seized upon        ||    0
 Selfless           ||    0
-Semitism           ||    0
+Anti-semitism      ||    0
 Settle             ||    0
 Short-tempered     ||    0
 Shrewdness         ||    0
-Silver tongue      ||    0
 Skew               ||    0
 Sleep              ||    0
 Slippery           ||    0
@@ -395,12 +394,11 @@ Sporadic           ||    0
 Squander           ||    0
 Squelch            ||    0
 Steadfast          ||    0
-Stip               ||    0
 Stipend            ||    0
 Strident           ||    0
 Stringent          ||    0
 Stumbling          ||    0
-Subborn            ||    0
+Stubborn           ||    0
 Superficial        ||    0
 Swift              ||    0
 Swiftly            ||    0
@@ -422,7 +420,7 @@ Tirade             ||    0
 Transient          ||    0
 Transitory         ||    0
 Trite              ||    0
-Triumph over       ||    0
+Defeat             ||    0 || Triumph_over
 Triumphant         ||    0
 Truncate           ||    0
 Trustworthy        ||    0
@@ -438,7 +436,6 @@ Unrehearsed        ||    0
 Unruly             ||    0
 Untidy             ||    0
 Untrue             ||    0
-Untrugh            ||    0
 Untruth            ||    0
 Unyielding         ||    0
 Upbeat             ||    0
@@ -454,8 +451,14 @@ Warlike            ||    0
 Wavering           ||    0
 Wealthy            ||    0
 Weary              ||    0
-Well-traveled      ||    0
 Whimsical          ||    0
 White-collar       ||    0
 Wildly             ||    0
 Zenith             ||    0
+Gregarious
+Cultured
+Metropolitan
+Clerical
+Clerk
+Eloquence
+Eloquent
