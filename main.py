@@ -6,7 +6,7 @@ import sys
 from WordDictionary import *
 
 
-options = {'inputFiles' : [], 'outputFile': "", 'meaning' : True, 'synonyms': True, 'antonyms': True, 'examples': True}
+# options = {'inputFiles' : [], 'outputFile': "", 'meaning' : True, 'synonyms': True, 'antonyms': True, 'examples': True}
 
 
 
@@ -33,6 +33,7 @@ def main():
     options = Options()
     wordDictionary = WordDictionary(["input"])
     wordDictionary.saveDictionary("output", options)
+    wordDictionary.saveDictionaryWords("words-indexed")
 
 if __name__ == "__main__":
     main()

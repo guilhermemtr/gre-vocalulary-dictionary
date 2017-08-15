@@ -107,37 +107,63 @@ class ThesaurusWord:
         
     def getWordDefinition(self, prefix):
         definitions = getLineString('Definitions', prefix, ":")
-        defs = dictionary.meaning(self._word)
+        defCount = 0
+        try:
+            defs = dictionary.meaning(self._word)
+        except:
+            defs = None
         if defs != None:
             for definition in defs:
                 definitions += getLineString(definition, prefix, ".")
+                defCount = defCount + 1
         else:
             definitions += getLineString("No definition available", prefix, ".")
+            defCount = 1 #Not trusting that the library returns non empty lists
+
+        if defCount == 0:
+            definitions += getLineString("No definition available", prefix, ".")
+        
         return definitions
 
     def getWordSynonyms(self, prefix):
         synonyms = getLineString('Synonyms', prefix, ":")
-        syn = dictionary.synonym(self._word)
+        synonymCount = 0
+        try:
+            syn = dictionary.synonym(self._word)
+        except:
+            syn = None
         if syn != None:
             for synonym in syn:
                 synonyms += getLineString(synonym.replace('_', ' '), prefix + getPrefix(), ".")
+                synonymCount = synonymCount + 1
         else:
             synonyms += getLineString("No synonyms available", prefix, ".")
+            synonymCount = 1
+
+        if synonymCount == 0:
+            synonyms += getLineString("No synonyms available", prefix, ".")
+        
         
         return synonyms
 
     def getWordAntonyms(self, prefix):
         antonyms = getLineString('Antonyms', prefix, ":")
         antonymCount = 0
-        ant = dictionary.antonym(self._word)
+        try:
+            ant = dictionary.antonym(self._word)
+        except:
+            ant = None
+            
         if ant != None:
             for antonym in ant:
                 antonyms += getLineString(antonym, prefix + getPrefix(), ".")
                 antonymCount = antonymCount + 1
         else:
             antonyms += getLineString("No antonyms available", prefix, ".")
+            antonymCount = 1
+            
         if antonymCount == 0:
-            antonyms += getLineString("None", prefix, ".")
+            antonyms += getLineString("No antonyms available", prefix, ".")
         return antonyms
 
     def getWordExamples(self, prefix):
@@ -165,10 +191,11 @@ class ThesaurusWord:
 
     
 class Word:
-    def __init__(self, word):
+    def __init__(self, word, level = 0):
         self.words = []
         self.word = word.capitalize().replace(" ", "%20")
         self.type = ""
+        self.level = level
         if word.capitalize() != self.word:
             self.type = "Thesaurus"
             self.words.append(ThesaurusWord(self.word))
@@ -177,9 +204,16 @@ class Word:
             meanings = wn.synsets(self.word)
             for meaning in meanings:
                 self.words.append(ContextWord(meaning))
-            
+
+    def getWord(self):
+        return self.word
+
+    def getLevel(self):
+        return self.level
+    
     def wordDescription(self, prefix, options):
         description = getLineString(self.word.replace("%20", " "), prefix)
+        description += getLineString("Difficulty: ", prefix, str(self.level))
         pref = prefix + getPrefix()
         ctxWordCount = 1
         for ctxWord in self.words:

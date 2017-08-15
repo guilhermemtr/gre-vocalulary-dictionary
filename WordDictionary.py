@@ -9,7 +9,11 @@ class WordDictionary:
     def loadWordsFromFile(self, filename):
         f = open(filename, 'r')
         for line in f:
-            self.addWord(line.lower().replace("\n",""))
+            wordData = line.lower().strip().replace("\n","").capitalize().split("||")
+            if len(wordData) > 1:
+                self.addWord(wordData[0],int(wordData[1]))
+            else:
+                self.addWord(wordData[0])
         f.close()
 
     def saveDictionary(self, filename, options):
@@ -18,7 +22,9 @@ class WordDictionary:
         wordCount = 0
         prefix = getPrefix()
         for k in sorted(self.words):
-            if k.capitalize()[0] != currentChar or wordCount == 0:
+            if self.words[k].getLevel() < options.getOptions()['level']:
+                continue
+            if k.capitalize()[0] != currentChar:
                 currentChar = k.capitalize()[0]
                 spacing = ""
                 if wordCount > 0:
@@ -28,6 +34,13 @@ class WordDictionary:
             wordCount = wordCount + 1
         f.close()
 
+    def saveDictionaryWords(self, filename):
+        f = open(filename, 'w')
+        for k in sorted(self.words):
+            word = self.words[k]
+            f.write(getLineString(word.getWord().replace("%20", " "), "", "||" + str(word.getLevel())))
+        f.close()
+        
     def addWord(self, word):
         self.words[word] = Word(word)
 
@@ -44,5 +57,5 @@ class WordDictionary:
             raise Exception(word + " is not in the dictionary")
         
     def getDictionaryWords(self):
-        return self.words.keys
+        return sorted(self.words.keys)
     
