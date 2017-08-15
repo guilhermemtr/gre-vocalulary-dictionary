@@ -2,14 +2,53 @@ prefix = "  "
 suffix = "\n"
 majorPrefixKey = "\n"
 
-dictionaryRepresentationSpacingDefinitions = {'letter': 4, 'word': 3, 'ctx-word': 2, 'ctx-word detail': 1}
+horizontal = 'h'
+vertical = 'v'
 
+dictionaryRepresentationSpacings = {
+    'letter':
+    {
+        horizontal: 0,
+        vertical: 6,
+    },
+    'word':
+    {
+        horizontal: 2,
+        vertical: 3,
+    },
+    'ctx-word':
+    {
+        horizontal: 2,
+        vertical: 1,
+    },
+    'word detail':
+    {
+        horizontal: 1,
+        vertical: 0,
+    },
+    'ctx-word detail':
+    {
+        horizontal: 1,
+        vertical: 0,
+    },
+    'ctx-word detail instance':
+    {
+        horizontal: 2,
+        vertical: 0,
+    },
+}
 
-def getPrefix():
-    return prefix
+def getVerticalSpacing(key):
+    return dictionaryRepresentationSpacings[key][vertical]
+
+def getHorizontalSpacing(key):
+    return dictionaryRepresentationSpacings[key][horizontal]
+
+def getPrefix(key):
+    return getHorizontalSpacing(key)*prefix
+
+def getMajorPrefix(key):
+    return getVerticalSpacing(key)*majorPrefixKey
 
 def getSuffix():
     return suffix
-
-def getMajorPrefix(n):
-    return n*majorPrefixKey

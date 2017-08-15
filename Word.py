@@ -5,12 +5,13 @@ import textwrap
 from nltk.corpus import wordnet as wn
 from PyDictionary import PyDictionary
 import dictcom
+import itertools
 
 dictionary=PyDictionary() 
 
 
-def getLineString(line, prefix = "", suffix = ""):
-    return prefix + line.capitalize() + suffix + getSuffix()
+def getLineString(line, prefix = "", suffix = "", extraSuffix = getSuffix()):
+    return prefix + line.capitalize() + suffix + extraSuffix
 
 def adj():
     return "adjective"
@@ -35,9 +36,35 @@ wordType = {
             'v' : verb,
 }
 
+defaultListSeparator = ":"
+defaultSeparator = "."
+
+wordPropertyNames = {
+    'definition': "Definition",
+    'synonyms'  : "Synonyms",
+    'antonyms'  : "Antonyms",
+    'examples'  : "Examples",
+}
+
+def standardizedPropertyDescription(prefix, propertyName, valueList = [], suffixSeparator = defaultSeparator, suffix = getSuffix()):
+    description = getLineString(propertyName, prefix, defaultListSeparator)
+    if len(valueList) == 0:
+        description += getLineString("None", prefix, defaultSeparator)
+    else:
+        missing = len(valueList)
+        for value in valueList:
+            separator = suffixSeparator
+            missing = missing - 1
+            if missing == 0:
+                separator = defaultSeparator
+            description += getLineString(value, prefix + getPrefix('ctx-word detail instance'), separator)
+    return description
+
+
 class ContextWord:
-    def __init__(self, meaning):
+    def __init__(self, meaning, word):
         self.meaning = meaning
+        self._word = word
 
     def word(self):
         return self.meaning.lemmas()[0].name()
@@ -46,51 +73,38 @@ class ContextWord:
         return wordType[self.meaning.pos()]()
         
     def getWordDefinition(self, prefix):
-        return getLineString('Definition', prefix, ":") + getLineString(self.meaning.definition(), prefix, ".")
-
+        return standardizedPropertyDescription(prefix, wordPropertyNames['definition'], [self.meaning.definition()])
+        
     def getWordExamples(self, prefix):
-        examples = getLineString('Examples', prefix, ":")
-        for example in self.meaning.examples():
-            examples += getLineString(example, prefix + getPrefix(), ".")
-        if len(self.meaning.examples()) == 0:
-            examples += getLineString("None", prefix, ".")
-        return examples
+        return standardizedPropertyDescription(prefix, wordPropertyNames['examples'], self.meaning.examples())
 
     def getWordSynonyms(self, prefix):
-        synonyms = getLineString('Synonyms', prefix, ":")
-        for synonym in self.meaning.lemmas():
-            syn = synonym.name()
-            if syn != self.word():
-                synonyms += getLineString(syn.replace('_', ' '), prefix + getPrefix(), ".")
-        if len(self.meaning.lemmas()) == 1:
-            synonyms += getLineString("None", prefix, ".")
-        return synonyms
+        syns = [lemma.name().capitalize() for lemma in self.meaning.lemmas()]
+        synonyms = [syn.replace('_', ' ') for syn in syns if syn != self._word]
+        return standardizedPropertyDescription(prefix, wordPropertyNames['synonyms'], synonyms)
 
     def getWordAntonyms(self, prefix):
-        antonyms = getLineString('Antonyms', prefix, ":")
-        antonymCount = 0
-        for synonym in self.meaning.lemmas():
-            for antonym in synonym.antonyms():
-                antonyms += getLineString(antonym.name().replace('_', ' '), prefix + getPrefix(), ".")
-                antonymCount = antonymCount + 1
-        if antonymCount == 0:
-            antonyms += getLineString("None", prefix, ".")
-        return antonyms
-
+        ants = [lemma.antonyms() for lemma in self.meaning.lemmas()]
+        antonyms = [ant.name().replace('_', ' ') for ant in list(itertools.chain.from_iterable(ants))]
+        return standardizedPropertyDescription(prefix, wordPropertyNames['antonyms'], antonyms)
     
     def getWordDescription(self, prefix, options):
-        descPrefix = prefix + getPrefix()
+        descPrefix = prefix + getPrefix('ctx-word detail')
         description = ""
-        if options.getOptions()['definition']:
+        if options.getOption('definition'):
+            description += getMajorPrefix('ctx-word detail')
             description += self.getWordDefinition(descPrefix)
 
-        if options.getOptions()['synonyms']:
+        if options.getOption('synonyms'):
+            description += getMajorPrefix('ctx-word detail')
             description += self.getWordSynonyms(descPrefix)
 
-        if options.getOptions()['antonyms']:
+        if options.getOption('antonyms'):
+            description += getMajorPrefix('ctx-word detail')
             description += self.getWordAntonyms(descPrefix)
 
-        if options.getOptions()['examples']:
+        if options.getOption('examples'):
+            description += getMajorPrefix('ctx-word detail')
             description += self.getWordExamples(descPrefix)
 
         return description
@@ -106,85 +120,44 @@ class ThesaurusWord:
         return "expression"
         
     def getWordDefinition(self, prefix):
-        definitions = getLineString('Definitions', prefix, ":")
-        defCount = 0
         try:
-            defs = dictionary.meaning(self._word)
+            return standardizedPropertyDescription(prefix, wordPropertyNames['definition'], dictionary.meaning(self.word()))
         except:
-            defs = None
-        if defs != None:
-            for definition in defs:
-                definitions += getLineString(definition, prefix, ".")
-                defCount = defCount + 1
-        else:
-            definitions += getLineString("No definition available", prefix, ".")
-            defCount = 1 #Not trusting that the library returns non empty lists
-
-        if defCount == 0:
-            definitions += getLineString("No definition available", prefix, ".")
+            return standardizedPropertyDescription(prefix, wordPropertyNames['definition'])
         
-        return definitions
-
     def getWordSynonyms(self, prefix):
-        synonyms = getLineString('Synonyms', prefix, ":")
-        synonymCount = 0
         try:
-            syn = dictionary.synonym(self._word)
+            return standardizedPropertyDescription(prefix, wordPropertyNames['synonyms'], dictionary.synonym(self.word()))
         except:
-            syn = None
-        if syn != None:
-            for synonym in syn:
-                synonyms += getLineString(synonym.replace('_', ' '), prefix + getPrefix(), ".")
-                synonymCount = synonymCount + 1
-        else:
-            synonyms += getLineString("No synonyms available", prefix, ".")
-            synonymCount = 1
-
-        if synonymCount == 0:
-            synonyms += getLineString("No synonyms available", prefix, ".")
+            return standardizedPropertyDescription(prefix, wordPropertyNames['synonyms'])
         
-        
-        return synonyms
-
     def getWordAntonyms(self, prefix):
-        antonyms = getLineString('Antonyms', prefix, ":")
-        antonymCount = 0
         try:
-            ant = dictionary.antonym(self._word)
+            return standardizedPropertyDescription(prefix, wordPropertyNames['antonyms'], dictionary.antonym(self.word()))
         except:
-            ant = None
-            
-        if ant != None:
-            for antonym in ant:
-                antonyms += getLineString(antonym, prefix + getPrefix(), ".")
-                antonymCount = antonymCount + 1
-        else:
-            antonyms += getLineString("No antonyms available", prefix, ".")
-            antonymCount = 1
-            
-        if antonymCount == 0:
-            antonyms += getLineString("No antonyms available", prefix, ".")
-        return antonyms
-
+            return standardizedPropertyDescription(prefix, wordPropertyNames['antonyms'])
+        
     def getWordExamples(self, prefix):
-        examples = getLineString('Examples', prefix, ":")
-        examples += getLineString("None", prefix, ".")
-        return examples
+        return standardizedPropertyDescription(prefix, wordPropertyNames['examples'])
 
 
     def getWordDescription(self, prefix, options):
-        descPrefix = prefix + getPrefix()
+        descPrefix = prefix + getPrefix('ctx-word detail')
         description = ""
-        if options.getOptions()['definition']:
+        if options.getOption('definition'):
+            description += getMajorPrefix('ctx-word detail')
             description += self.getWordDefinition(descPrefix)
 
-        if options.getOptions()['synonyms']:
+        if options.getOption('synonyms'):
+            description += getMajorPrefix('ctx-word detail')
             description += self.getWordSynonyms(descPrefix)
 
-        if options.getOptions()['antonyms']:
+        if options.getOption('antonyms'):
+            description += getMajorPrefix('ctx-word detail')
             description += self.getWordAntonyms(descPrefix)
 
-        if options.getOptions()['examples']:
+        if options.getOption('examples'):
+            description += getMajorPrefix('ctx-word detail')
             description += self.getWordExamples(descPrefix)
 
         return description
@@ -203,7 +176,7 @@ class Word:
             self.type = "Nltk"
             meanings = wn.synsets(self.word)
             for meaning in meanings:
-                self.words.append(ContextWord(meaning))
+                self.words.append(ContextWord(meaning, self.word))
 
     def getWord(self):
         return self.word
@@ -212,14 +185,24 @@ class Word:
         return self.level
     
     def wordDescription(self, prefix, options):
-        description = getLineString(self.word.replace("%20", " "), prefix)
-        description += getLineString("Difficulty: ", prefix, str(self.level))
-        pref = prefix + getPrefix()
+        description = ""
+        if options.getOption('word'):
+            description += getLineString(self.word.replace("%20", " "), prefix)
+            description += getMajorPrefix('word detail')
+
+        if options.getOption('difficulty'):
+            description += getLineString("Difficulty: ", prefix + getPrefix('word detail'), str(self.level))
         ctxWordCount = 1
         for ctxWord in self.words:
             if ctxWordCount > 1:
-                description += getMajorPrefix(dictionaryRepresentationSpacingDefinitions["ctx-word"])
-            description += getLineString("Sense %d, as in %s (%s)" % (ctxWordCount,ctxWord.word().replace("%20", " "), ctxWord.pos()), pref, ":")
-            description += ctxWord.getWordDescription(pref, options)
+                if options.getOption('explicit-senses'):
+                    description += getMajorPrefix('ctx-word')
+            elif options.getOption('difficulty'):
+                description += getMajorPrefix('word detail')
+
+            if options.getOption('explicit-senses'):
+                description += getLineString("Sense %d, as in %s (%s)" % (ctxWordCount,ctxWord.word().replace("%20", " "), ctxWord.pos()), prefix + getPrefix('ctx-word'), ":")
+            
+            description += ctxWord.getWordDescription(prefix + getPrefix('ctx-word'), options)
             ctxWordCount = ctxWordCount + 1
         return description

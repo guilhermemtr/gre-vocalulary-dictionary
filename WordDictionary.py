@@ -2,6 +2,8 @@ from Word import *
 
 class WordDictionary:
     def __init__(self, filenames):
+        self.longestWord = "" #Only has to be at least the length of the longest word
+                              #But it is not necessary that it actually is the longest
         self.words = {}
         for filename in filenames:
             self.loadWordsFromFile(filename)
@@ -9,7 +11,7 @@ class WordDictionary:
     def loadWordsFromFile(self, filename):
         f = open(filename, 'r')
         for line in f:
-            wordData = line.lower().strip().replace("\n","").capitalize().split("||")
+            wordData = list(map(str.strip,line.lower().strip().replace("\n","").capitalize().split("||")))
             if len(wordData) > 1:
                 self.addWord(wordData[0],int(wordData[1]))
             else:
@@ -20,29 +22,49 @@ class WordDictionary:
         f = open(filename, 'w')
         currentChar = 'A'
         wordCount = 0
-        prefix = getPrefix()
+        spaced = True
+        prefix = getPrefix('letter')
+        spacing = ""
         for k in sorted(self.words):
-            if self.words[k].getLevel() < options.getOptions()['level']:
+            if self.words[k].getLevel() < options.getOption('level'):
                 continue
             if k.capitalize()[0] != currentChar:
                 currentChar = k.capitalize()[0]
-                spacing = ""
                 if wordCount > 0:
-                    spacing = getMajorPrefix(dictionaryRepresentationSpacingDefinitions['letter'])
-                f.write(getLineString(currentChar, spacing))
-            f.write(self.words[k].wordDescription(prefix, options))
+                    spacing = getMajorPrefix('letter')
+                    spaced = True
+                f.write(spacing)
+                f.write(getLineString(currentChar, prefix))
+            if not spaced:
+                spacing = getMajorPrefix('word')
+            else:
+                spacing = ""
+            f.write(spacing)
+            f.write(self.words[k].wordDescription(prefix + getPrefix('word'), options))
             wordCount = wordCount + 1
+            spaced = False
         f.close()
 
     def saveDictionaryWords(self, filename):
         f = open(filename, 'w')
         for k in sorted(self.words):
             word = self.words[k]
-            f.write(getLineString(word.getWord().replace("%20", " "), "", "||" + str(word.getLevel())))
+            wordString = word.getWord().replace("%20", " ")
+            wordPadding = len(self.longestWord) - len(wordString)
+            f.write(getLineString(word.getWord().replace("%20", " "), "", ((wordPadding + 4) * " ") +  "||" + (" " * 4) + str(word.getLevel())))
         f.close()
-        
+
+    def updateLongestWord(self, word):
+        if len(word) > len(self.longestWord):
+            self.longestWord = word
+    
     def addWord(self, word):
         self.words[word] = Word(word)
+        self.updateLongestWord(word)
+        
+    def addWord(self, word, level):
+        self.words[word] = Word(word, level)
+        self.updateLongestWord(word)
 
     def deleteWord(self, word):
         del self.words[word]
