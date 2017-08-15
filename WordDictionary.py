@@ -63,6 +63,7 @@ class WordDictionary:
             tags = word.getTags()
             
             wordLine  = word.getWord() + ((wordPadding + 4) * " ")
+            print (len(self.words))
             wordLine += fieldSeparator + (" " * 4) + lvl + (" " * lvlPadding) + (" " * 4)
             wordLine += fieldSeparator + (" " * 4) + tagSeparator.join(tags) + (" " * 4)
             f.write(getLineString(wordLine))
