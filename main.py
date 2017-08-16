@@ -12,9 +12,10 @@ def showArguments():
 
 def main():
     options = Options()
-    wordDictionary = WordDictionary(["input"])
+    wordDictionary = WordDictionary(["input"], "input-tags")
     wordDictionary.saveDictionary("output", options)
     wordDictionary.saveDictionaryWords("words-indexed")
+    wordDictionary.storeTagsToFile("tags-indexed")
 
 if __name__ == "__main__":
     main()

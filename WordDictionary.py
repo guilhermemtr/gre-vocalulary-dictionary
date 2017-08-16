@@ -2,11 +2,15 @@ from Word import *
 
 
 class WordDictionary:
-    def __init__(self, filenames):
+    def __init__(self, filenames, tagListFilename):
         self.longestWord = "" #Only has to be at least the length of the longest word
                               #But it is not necessary that it actually is the longest
         self.maxLevel = 0
         self.words = {}
+        self.tags = {}
+        self.longestTag = ""
+        self.longestTagName = ""
+        self.loadTagsFromFile(tagListFilename)
         for filename in filenames:
             self.loadWordsFromFile(filename)
 
@@ -16,7 +20,9 @@ class WordDictionary:
             wordData = list(map(str.strip,line.lower().strip().replace("\n","").capitalize().split(fieldSeparator)))
             wlen = len(wordData)
             if   wlen == 3:
-                tags = [s for s in list(map(str.strip, wordData[2].split(tagSeparator))) if s != ""]
+                tagNames = [tn for tn in list(map(str.strip, wordData[2].split(tagSeparator))) if tn != ""]
+                existingTagNames = [tn for tn in tagNames if tn in self.tags]
+                tags = [self.tags[tn] for tn in existingTagNames]
                 self.addWord(wordData[0], int(wordData[1]), tags)
             elif wlen == 2:
                 self.addWord(wordData[0], int(wordData[1]))
@@ -24,6 +30,20 @@ class WordDictionary:
                 self.addWord(wordData[0])
         f.close()
 
+    def loadTagsFromFile(self, filename):
+        f = open(filename, 'r')
+        for line in f:
+            tagData = list(map(str.strip,line.strip().replace("\n","").split(fieldSeparator)))
+            self.addTag(tagData[0], tagData[1], tagData[2])
+        f.close()
+
+    def storeTagsToFile(self, filename):
+        f = open(filename, 'w')
+        for tag in sorted(self.tags):
+            line = fieldSeparator.join([self.tags[tag].getId(), self.tags[tag].getName(), self.tags[tag].getDesc()])
+            f.write(getLineString(line))
+        f.close()
+        
     def saveDictionary(self, filename, options):
         f = open(filename, 'w')
         currentChar = 'A'
@@ -61,14 +81,21 @@ class WordDictionary:
             lvl = str(word.getLevel())
             lvlPadding = len(str(self.maxLevel)) - len(lvl)
 
-            tags = word.getTags()
+            tags = [tag.getId() for tag in word.getTags()]
             
             wordLine  = word.getWord() + ((wordPadding + 4) * " ")
             wordLine += fieldSeparator + (" " * 4) + lvl + (" " * lvlPadding) + (" " * 4)
             wordLine += fieldSeparator + (" " * 4) + tagSeparator.join(tags) + (" " * 4)
             f.write(getLineString(wordLine))
         f.close()
-            
+
+    def addTag(self, tagId, tagName, tagDesc):
+        self.tags[tagId] = Tag(tagId, tagName, tagDesc)
+        if len(tagId) > len(self.longestTag):
+            self.longestTag = tagId
+        if len(tagName) > len(self.longestTagName):
+            self.longestTagName = tagName
+        
     def addWord(self, word, level = 0, tags = []):
         self.words[word] = Word(word, level, tags)
         if len(word) > len(self.longestWord):

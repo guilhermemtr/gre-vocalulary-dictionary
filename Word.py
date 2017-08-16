@@ -1,12 +1,13 @@
 from Options import *
 from Config import *
+from Tag import *
 
 import textwrap
 from nltk.corpus import wordnet as wn
 from PyDictionary import PyDictionary
 import dictcom
 import itertools
-import math
+import math 
 
 dictionary=PyDictionary() 
 
@@ -167,7 +168,7 @@ class ThesaurusWord:
 
 
 class Word:
-    def __init__(self, word, level = 0, tags = [""]):
+    def __init__(self, word, level = 0, tags = []):
         self.tags = tags
         self.words = []
         self.word = word.capitalize().replace(" ", "_")
@@ -197,7 +198,8 @@ class Word:
             description += getMajorPrefix('word detail')
 
         if options.getOption('tags'):
-            description += standardizedPropertyDescription(prefix, wordPropertyNames['tags'], self.tags)
+            tagDesc = [(tag.getName() + "[" + tag.getId() + "]:" + getPrefix('word detail') + tag.getDesc()) for tag in self.tags]
+            description += standardizedPropertyDescription(prefix, wordPropertyNames['tags'], tagDesc)
         if options.getOption('difficulty'):
             description += getLineString("Difficulty: ", prefix + getPrefix('word detail'), str(self.level))
         ctxWordCount = 1
