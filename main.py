@@ -10,8 +10,12 @@ def showArguments():
     print('Number of arguments:', len(sys.argv), 'arguments.')
     print('Argument List:', str(sys.argv))
 
+def tagFilter(tagObjectList):
+    tags = [tag.getId() for tag in tagObjectList]
+    return ("!known" in tags) or ("gre" in tags)
+    
 def main():
-    options = Options()
+    options = Options(tagFilter)
     wordDictionary = WordDictionary(["input"], "input-tags")
     wordDictionary.saveDictionary("output", options)
     wordDictionary.saveDictionaryWords("words-indexed")

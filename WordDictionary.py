@@ -52,7 +52,9 @@ class WordDictionary:
         prefix = getPrefix('letter')
         spacing = ""
         for k in sorted(self.words):
-            if self.words[k].getLevel() < options.getOption('level'):
+            if not (options.getOption('levelFilter'))(self.words[k].getLevel()):
+                continue
+            if not (options.getOption('tagFilter'))(self.words[k].getTags()):
                 continue
             if k.capitalize()[0] != currentChar or wordCount == 0:
                 currentChar = k.capitalize()[0]

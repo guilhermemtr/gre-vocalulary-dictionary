@@ -9,6 +9,10 @@ import dictcom
 import itertools
 import math 
 
+# not used yet
+def trueCapitalize(self):
+    return self[0].upper() + self[1:]
+
 dictionary=PyDictionary() 
 
 def getLineString(line, prefix = "", suffix = "", extraSuffix = getSuffix()):
@@ -199,6 +203,7 @@ class Word:
 
         if options.getOption('tags'):
             tagDesc = [(tag.getName() + "[" + tag.getId() + "]:" + getPrefix('word detail') + tag.getDesc()) for tag in self.tags]
+            tagDesc = [(tag.getName() + ":" + getPrefix('word detail') + tag.getDesc()) for tag in self.tags]
             description += standardizedPropertyDescription(prefix, wordPropertyNames['tags'], tagDesc)
         if options.getOption('difficulty'):
             description += getLineString("Difficulty: ", prefix + getPrefix('word detail'), str(self.level))

@@ -1,7 +1,7 @@
-id || name || description
+!(id || name || description)!
 suffix || Suffix || A morpheme added at the end of a word to form a derivative
-!known || Not Known || Words or expressions that I don't know yet.
-known || Known || Words or expressions that I know.
+!known || Not Known || Words or expressions that I don't know yet
+known || Known || Words or expressions that I know
 important || Important Word || Words that are important
 gre || GRE Word || Words that frequently appear in GRE
 basic || Basic Word || Words that are basic
