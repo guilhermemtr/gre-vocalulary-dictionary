@@ -5,6 +5,7 @@ class WordDictionary:
     def __init__(self, filenames):
         self.longestWord = "" #Only has to be at least the length of the longest word
                               #But it is not necessary that it actually is the longest
+        self.maxLevel = 0
         self.words = {}
         for filename in filenames:
             self.loadWordsFromFile(filename)
@@ -58,24 +59,21 @@ class WordDictionary:
             wordPadding = len(self.longestWord) - len(wordString)
             
             lvl = str(word.getLevel())
-            lvlPadding = len(self.words) - len(lvl)
+            lvlPadding = len(str(self.maxLevel)) - len(lvl)
 
             tags = word.getTags()
             
             wordLine  = word.getWord() + ((wordPadding + 4) * " ")
-            print (len(self.words))
             wordLine += fieldSeparator + (" " * 4) + lvl + (" " * lvlPadding) + (" " * 4)
             wordLine += fieldSeparator + (" " * 4) + tagSeparator.join(tags) + (" " * 4)
             f.write(getLineString(wordLine))
         f.close()
-
-    def updateLongestWord(self, word):
-        if len(word) > len(self.longestWord):
-            self.longestWord = word
             
     def addWord(self, word, level = 0, tags = []):
         self.words[word] = Word(word, level, tags)
-        self.updateLongestWord(word)
+        if len(word) > len(self.longestWord):
+            self.longestWord = word
+        self.maxLevel = max(self.maxLevel, level)
 
     def deleteWord(self, word):
         del self.words[word]
